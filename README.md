@@ -1,57 +1,52 @@
-# MocKing UPSC — Backend
+# MocKing UPSC — Frontend
 
-Node.js + Express + SQLite API for the MocKing UPSC mock-test platform.
+A single-page app (plain HTML/CSS/JS — no build step, no npm install needed) that talks to the
+backend API you already have.
 
-## Setup (run these on your own computer)
+## Setup
 
-1. Install [Node.js](https://nodejs.org) (v18 or later) if you don't have it.
-2. Open a terminal in this folder and run:
-3. Copy `.env.example` to `.env` and set a real `JWT_SECRET` (any long random string):
-4. Create and seed the database:
-This creates `mocking_upsc.sqlite` with 10 sample questions across Polity, History, Geography and Economy.
-5. Start the server:
-It will run on `http://localhost:4000`.
+1. Make sure the **backend** is running first (see the backend's README):
+   ```
+   npm start
+   ```
+   It should be live at `http://localhost:4000`.
 
-To make yourself an admin (needed for adding/editing questions), sign up normally through
-`/api/auth/signup`, then open `mocking_upsc.sqlite` (e.g. with the "DB Browser for SQLite" free
-app) and change that user's `role` column from `student` to `admin`.
+2. Open `index.html` in your browser — just double-click the file, or right-click → Open With → your browser.
 
-## API Overview
+That's it. No build tools required.
 
-### Auth
-| Method | Route             | Body                          | Notes             |
-|--------|-------------------|--------------------------------|-------------------|
-| POST   | /api/auth/signup  | `{ name, email, password }`   | Creates a student account |
-| POST   | /api/auth/login   | `{ email, password }`         | Returns a JWT token |
+## If login/signup doesn't work
 
-Send the token on every other request as a header:
-`Authorization: Bearer <token>`
+Some browsers restrict requests from a double-clicked local file. If you see errors in the
+browser console, serve this folder instead of opening it directly:
 
-### Tests (requires login)
-| Method | Route                        | Body / Notes |
-|--------|------------------------------|--------------|
-| POST   | /api/tests/start             | `{ subject?, count?, durationSeconds? }` — starts a new test, returns questions without answers |
-| PATCH  | /api/tests/:testId/answer    | `{ questionId, selectedOption }` — save/change an answer as the user progresses |
-| POST   | /api/tests/:testId/submit    | Grades the test with negative marking, returns score |
-| GET    | /api/tests/:testId/review    | Full review: your answer vs correct answer, per question |
-| GET    | /api/tests/history           | All past tests for the logged-in user |
+```
+npx serve .
+```
 
-### Questions (admin only)
-| Method | Route              | Notes |
-|--------|---------------------|-------|
-| GET    | /api/questions      | List all questions (optional `?subject=Polity`) |
-| POST   | /api/questions      | Add a new question |
-| PUT    | /api/questions/:id  | Edit a question |
-| DELETE | /api/questions/:id  | Remove a question |
+(This uses a temporary, no-install static server — just say yes if it asks to install `serve`.)
+Then open the address it prints (usually `http://localhost:3000`).
 
-## Scoring logic
+## Changing the backend address
 
-Each test stores its own `marks_per_correct` (default 2) and `negative_marks` (default 0.66),
-matching the UPSC Prelims pattern. Score = `(correct × marks_per_correct) − (wrong × negative_marks)`.
-Skipped questions cost nothing.
+If your backend runs on a different port or a real server later, update this line near the top
+of the `<script>` tag in `index.html`:
 
-## Next steps (later sessions)
+```js
+const API_BASE = 'http://localhost:4000/api';
+```
 
-- Frontend: a React (or the existing single-page demo) app that talks to this API
-- Deployment: Render or Railway both support Node + a persistent disk for the SQLite file for free
-- Optional: swap SQLite for PostgreSQL if you expect heavy concurrent traffic later
+## What's included
+
+- Sign up / log in (JWT stored in the browser so you stay logged in)
+- Start a test: choose subject + question count, get a live countdown timer
+- Take the test: click through questions, answers auto-save as you go
+- Auto-submit when time runs out, or submit manually on the last question
+- Results page with full answer review (your answer vs. correct answer + explanation)
+- History page listing all your past attempts
+
+## Next steps
+
+- Admin screen for adding/editing questions (currently only via the API directly)
+- Deploy frontend + backend together so it's not just `localhost`
+- Polish: subject-wise performance charts, retake-wrong-answers mode

@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MocKing UPSC</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#EDEAE1; --panel:#FFFFFE; --ink:#24262B; --ink-soft:#5B5D5F;
+    --navy:#16233D; --gold:#B08D2B; --gold-soft:#E9DDB8;
+    --good:#2F6F4E; --bad:#A23B33; --line:#D8D3C4;
+    --serif:'Spectral',Georgia,serif; --sans:'IBM Plex Sans',system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--bg); color:var(--ink); font-family:var(--sans); display:flex; justify-content:center;}
+  #app{width:100%; max-width:680px; padding:32px 20px 48px;}
+  header.brand{display:flex; align-items:center; justify-content:space-between; margin-bottom:24px;}
+  .brand h1{font-family:var(--serif); font-weight:700; font-size:1.5rem;}
+  .brand span{color:var(--gold);}
+  .brand-right{display:flex; align-items:center; gap:14px; font-size:.85rem; color:var(--ink-soft);}
+  .link-btn{background:none; border:none; color:var(--navy); text-decoration:underline; cursor:pointer; font-size:.85rem; padding:0; font-family:var(--sans);}
+
+  .card{background:var(--panel); border:1px solid var(--line); border-radius:4px; padding:32px 28px; margin-bottom:20px;}
+  .hidden{display:none !important;}
+
+  h2.title{font-family:var(--serif); font-size:1.6rem; font-weight:600; margin:0 0 8px;}
+  p.sub{color:var(--ink-soft); margin:0 0 22px; font-size:.95rem;}
+
+  label{display:block; font-size:.85rem; color:var(--ink-soft); margin-bottom:5px; margin-top:14px;}
+  input, select{
+    width:100%; padding:11px 12px; border:1px solid var(--line); border-radius:3px;
+    font-family:var(--sans); font-size:.95rem; background:var(--panel); color:var(--ink);
+  }
+  .btn{
+    font-family:var(--sans); font-weight:600; font-size:.95rem; border:none; cursor:pointer;
+    padding:13px 24px; border-radius:3px; background:var(--navy); color:var(--bg); margin-top:20px;
+  }
+  .btn.ghost{background:transparent; border:1px solid var(--line); color:var(--ink);}
+  .btn.wide{width:100%;}
+  .btn:disabled{opacity:.5; cursor:default;}
+  .err{color:var(--bad); font-size:.85rem; margin-top:10px;}
+  .msg{color:var(--good); font-size:.85rem; margin-top:10px;}
+
+  .meta-row{display:flex; gap:24px; margin:20px 0 6px; flex-wrap:wrap;}
+  .meta-row div{border-left:2px solid var(--gold); padding-left:12px;}
+  .meta-row .num{font-family:var(--serif); font-size:1.3rem; font-weight:600;}
+  .meta-row .lbl{color:var(--ink-soft); font-size:.8rem;}
+
+  .test-top{display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;}
+  .progress-txt{font-size:.85rem; color:var(--ink-soft);}
+  .timer{font-family:var(--serif); font-variant-numeric:tabular-nums; font-size:1.1rem; font-weight:600; border:1px solid var(--line); padding:6px 14px; border-radius:20px;}
+  .timer.low{color:var(--bad); border-color:var(--bad);}
+  .track{height:3px; background:var(--line); border-radius:2px; margin-bottom:24px; overflow:hidden;}
+  .track i{display:block; height:100%; background:var(--gold);}
+  .q-text{font-family:var(--serif); font-size:1.2rem; line-height:1.45; font-weight:600; margin-bottom:22px;}
+  .opt{display:flex; gap:14px; align-items:flex-start; padding:13px 15px; border:1px solid var(--line); border-radius:3px; margin-bottom:9px; cursor:pointer; font-size:.95rem;}
+  .opt:hover{border-color:var(--gold);}
+  .opt.selected{border-color:var(--gold); background:var(--gold-soft);}
+  .opt .tag{flex:none; width:22px; height:22px; border-radius:50%; border:1px solid var(--ink-soft); display:flex; align-items:center; justify-content:center; font-size:.7rem; color:var(--ink-soft);}
+  .opt.selected .tag{border-color:var(--gold); background:var(--gold); color:var(--navy);}
+  .nav-row{display:flex; justify-content:space-between; margin-top:24px; gap:12px;}
+
+  .score-num{font-family:var(--serif); font-size:2.6rem; font-weight:700;}
+  .stat-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin:22px 0 8px;}
+  .stat{border-left:2px solid var(--line); padding-left:10px;}
+  .stat.good{border-color:var(--good);} .stat.bad{border-color:var(--bad);}
+  .stat .n{font-family:var(--serif); font-size:1.25rem; font-weight:600;}
+  .stat .l{font-size:.78rem; color:var(--ink-soft);}
+  .r-item{padding:14px 0; border-bottom:1px solid var(--line);}
+  .r-item:last-child{border-bottom:none;}
+  .r-q{font-size:.9rem; font-weight:600; margin-bottom:6px;}
+  .r-line{font-size:.83rem; margin-bottom:2px;}
+  .r-line.you{color:var(--bad);} .r-line.correct{color:var(--good);}
+  .r-note{font-size:.8rem; color:var(--ink-soft); margin-top:4px;}
+
+  table{width:100%; border-collapse:collapse; font-size:.88rem;}
+  th, td{text-align:left; padding:9px 6px; border-bottom:1px solid var(--line);}
+  th{color:var(--ink-soft); font-weight:500; font-size:.78rem;}
+</style>
+</head>
+<body>
+<div id="app">
+  <header class="brand">
+    <h1>MocK<span>ing</span> UPSC</h1>
+    <div class="brand-right" id="navRight"></div>
+  </header>
+
+  <!-- AUTH -->
+  <section id="view-auth" class="card hidden">
+    <h2 class="title" id="authTitle">Log in</h2>
+    <p class="sub" id="authSub">Welcome back — pick up where you left off.</p>
+    <div id="signupNameWrap" class="hidden">
+      <label>Name</label>
+      <input id="authName" type="text" placeholder="Your name">
+    </div>
+    <label>Email</label>
+    <input id="authEmail" type="email" placeholder="you@example.com">
+    <label>Password</label>
+    <input id="authPassword" type="password" placeholder="At least 6 characters">
+    <button class="btn wide" id="authSubmitBtn">Log in</button>
+    <div class="err hidden" id="authErr"></div>
+    <p class="sub" style="margin-top:18px;">
+      <span id="authToggleLabel">Don't have an account?</span>
+      <button class="link-btn" id="authToggleBtn">Sign up</button>
+    </p>
+  </section>
+
+  <!-- HOME -->
+  <section id="view-home" class="card hidden">
+    <h2 class="title">Start a mock test</h2>
+    <p class="sub">Pick a subject or mix everything together.</p>
+    <label>Subject</label>
+    <select id="subjectSelect">
+      <option value="">Mixed (all subjects)</option>
+      <option value="Polity">Polity</option>
+      <option value="History">History</option>
+      <option value="Geography">Geography</option>
+      <option value="Economy">Economy</option>
+    </select>
+    <label>Number of questions</label>
+    <select id="countSelect">
+      <option value="5">5</option>
+      <option value="10" selected>10</option>
+      <option value="20">20</option>
+    </select>
+    <div class="meta-row">
+      <div><div class="num" id="durationPreview">10:00</div><div class="lbl">time limit</div></div>
+      <div><div class="num">+2 / −0.66</div><div class="lbl">marking</div></div>
+    </div>
+    <button class="btn wide" id="startTestBtn">Begin test</button>
+    <div class="err hidden" id="homeErr"></div>
+  </section>
+
+  <!-- TEST -->
+  <section id="view-test" class="card hidden">
+    <div class="test-top">
+      <span class="progress-txt" id="progressTxt"></span>
+      <span class="timer" id="timerTxt">--:--</span>
+    </div>
+    <div class="track"><i id="progressBar" style="width:0%"></i></div>
+    <div class="q-text" id="qText"></div>
+    <div id="optsWrap"></div>
+    <div class="nav-row">
+      <button class="btn ghost" id="prevBtn">Previous</button>
+      <button class="btn" id="nextBtn">Next</button>
+    </div>
+  </section>
+
+  <!-- RESULTS -->
+  <section id="view-results" class="card hidden">
+    <div style="display:flex; align-items:baseline; gap:14px;">
+      <div class="score-num" id="scoreNum">0</div>
+      <div style="color:var(--ink-soft);" id="scoreOf"></div>
+    </div>
+    <p style="color:var(--ink-soft);" id="accuracyTxt"></p>
+    <div class="stat-grid">
+      <div class="stat good"><div class="n" id="statCorrect">0</div><div class="l">correct</div></div>
+      <div class="stat bad"><div class="n" id="statWrong">0</div><div class="l">incorrect</div></div>
+      <div class="stat"><div class="n" id="statSkip">0</div><div class="l">unattempted</div></div>
+    </div>
+    <button class="btn" id="backHomeBtn">Take another test</button>
+    <div style="border-top:1px solid var(--line); margin-top:22px; padding-top:20px;">
+      <h2 class="title" style="font-size:1.05rem;">Answer review</h2>
+      <div id="reviewWrap"></div>
+    </div>
+  </section>
+
+  <!-- HISTORY -->
+  <section id="view-history" class="card hidden">
+    <h2 class="title">Your past tests</h2>
+    <table id="historyTable">
+      <thead><tr><th>Date</th><th>Subject</th><th>Score</th><th>Correct</th><th>Wrong</th></tr></thead>
+      <tbody id="historyBody"></tbody>
+    </table>
+    <p class="sub hidden" id="historyEmpty">No tests yet — take your first one!</p>
+  </section>
+</div>
+
+<script>
+// ---- Config ----
+const API_BASE = 'http://localhost:4000/api';
+
+// ---- State ----
+let token = localStorage.getItem('mu_token') || null;
+let userName = localStorage.getItem('mu_name') || null;
+let currentTest = null;      // { testId, durationSeconds, questions: [...] }
+let answers = {};            // questionId -> 'A'|'B'|'C'|'D'
+let currentIndex = 0;
+let timeLeft = 0;
+let timerId = null;
+let authMode = 'login';      // 'login' | 'signup'
+
+// ---- Helpers ----
+function $(id){ return document.getElementById(id); }
+function show(id){
+  document.querySelectorAll('#app > section').forEach(s => s.classList.add('hidden'));
+  $(id).classList.remove('hidden');
+}
+async function api(path, options = {}){
+  const headers = { 'Content-Type': 'application/json', ...(options.headers||{}) };
+  if (token) headers.Authorization = 'Bearer ' + token;
+  const res = await fetch(API_BASE + path, { ...options, headers });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || 'Request failed.');
+  return data;
+}
+
+function renderNav(){
+  const wrap = $('navRight');
+  if (token){
+    wrap.innerHTML = `<span>${userName || 'Account'}</span>
+      <button class="link-btn" id="historyLinkBtn">History</button>
+      <button class="link-btn" id="logoutBtn">Log out</button>`;
+    $('historyLinkBtn').onclick = loadHistory;
+    $('logoutBtn').onclick = logout;
+  } else {
+    wrap.innerHTML = '';
+  }
+}
+
+function logout(){
+  token = null; userName = null;
+  localStorage.removeItem('mu_token'); localStorage.removeItem('mu_name');
+  renderNav();
+  showAuth('login');
+}
+
+// ---- Auth view ----
+function showAuth(mode){
+  authMode = mode;
+  $('authErr').classList.add('hidden');
+  if (mode === 'login'){
+    $('authTitle').textContent = 'Log in';
+    $('authSub').textContent = 'Welcome back — pick up where you left off.';
+    $('signupNameWrap').classList.add('hidden');
+    $('authSubmitBtn').textContent = 'Log in';
+    $('authToggleLabel').textContent = "Don't have an account?";
+    $('authToggleBtn').textContent = 'Sign up';
+  } else {
+    $('authTitle').textContent = 'Create your account';
+    $('authSub').textContent = 'Start tracking your mock test performance.';
+    $('signupNameWrap').classList.remove('hidden');
+    $('authSubmitBtn').textContent = 'Sign up';
+    $('authToggleLabel').textContent = 'Already have an account?';
+    $('authToggleBtn').textContent = 'Log in';
+  }
+  show('view-auth');
+}
+
+$('authToggleBtn').onclick = () => showAuth(authMode === 'login' ? 'signup' : 'login');
+
+$('authSubmitBtn').onclick = async () => {
+  const email = $('authEmail').value.trim();
+  const password = $('authPassword').value;
+  const name = $('authName').value.trim();
+  $('authErr').classList.add('hidden');
+  try {
+    const path = authMode === 'login' ? '/auth/login' : '/auth/signup';
+    const body = authMode === 'login' ? { email, password } : { name, email, password };
+    const data = await api(path, { method: 'POST', body: JSON.stringify(body) });
+    token = data.token;
+    userName = data.user.name;
+    localStorage.setItem('mu_token', token);
+    localStorage.setItem('mu_name', userName || '');
+    renderNav();
+    show('view-home');
+  } catch (err) {
+    $('authErr').textContent = err.message;
+    $('authErr').classList.remove('hidden');
+  }
+};
+
+// ---- Home / start test ----
+$('countSelect').addEventListener('change', updateDurationPreview);
+function updateDurationPreview(){
+  const count = Number($('countSelect').value);
+  const seconds = count * 60; // 1 minute per question
+  const m = Math.floor(seconds/60).toString().padStart(2,'0');
+  $('durationPreview').textContent = m + ':00';
+}
+updateDurationPreview();
+
+$('startTestBtn').onclick = async () => {
+  $('homeErr').classList.add('hidden');
+  const subject = $('subjectSelect').value || undefined;
+  const count = Number($('countSelect').value);
+  const durationSeconds = count * 60;
+  try {
+    const data = await api('/tests/start', {
+      method: 'POST',
+      body: JSON.stringify({ subject, count, durationSeconds })
+    });
+    currentTest = data;
+    answers = {};
+    currentIndex = 0;
+    timeLeft = data.durationSeconds;
+    show('view-test');
+    renderQuestion();
+    clearInterval(timerId);
+    timerId = setInterval(tick, 1000);
+  } catch (err) {
+    $('homeErr').textContent = err.message;
+    $('homeErr').classList.remove('hidden');
+  }
+};
+
+// ---- Test taking ----
+function tick(){
+  timeLeft--;
+  updateTimerDisplay();
+  if (timeLeft <= 0){
+    clearInterval(timerId);
+    submitTest();
+  }
+}
+function updateTimerDisplay(){
+  const m = Math.floor(timeLeft/60).toString().padStart(2,'0');
+  const s = (timeLeft%60).toString().padStart(2,'0');
+  const el = $('timerTxt');
+  el.textContent = m + ':' + s;
+  el.classList.toggle('low', timeLeft <= 60);
+}
+
+function renderQuestion(){
+  const q = currentTest.questions[currentIndex];
+  $('progressTxt').textContent = `Question ${currentIndex+1} of ${currentTest.questions.length}`;
+  $('progressBar').style.width = ((currentIndex+1)/currentTest.questions.length*100) + '%';
+  $('qText').textContent = q.question_text;
+
+  const wrap = $('optsWrap');
+  wrap.innerHTML = '';
+  const letters = ['A','B','C','D'];
+  const optValues = [q.option_a, q.option_b, q.option_c, q.option_d];
+  optValues.forEach((optText, i) => {
+    const letter = letters[i];
+    const div = document.createElement('div');
+    div.className = 'opt' + (answers[q.question_id] === letter ? ' selected' : '');
+    div.innerHTML = `<span class="tag">${letter}</span><span>${optText}</span>`;
+    div.onclick = () => selectAnswer(q.question_id, letter);
+    wrap.appendChild(div);
+  });
+
+  $('prevBtn').style.visibility = currentIndex === 0 ? 'hidden' : 'visible';
+  $('nextBtn').textContent = currentIndex === currentTest.questions.length - 1 ? 'Submit test' : 'Next';
+}
+
+async function selectAnswer(questionId, letter){
+  answers[questionId] = letter;
+  renderQuestion();
+  try {
+    await api(`/tests/${currentTest.testId}/answer`, {
+      method: 'PATCH',
+      body: JSON.stringify({ questionId, selectedOption: letter })
+    });
+  } catch (err) {
+    console.error('Failed to save answer:', err.message);
+  }
+}
+
+$('prevBtn').onclick = () => { if (currentIndex > 0){ currentIndex--; renderQuestion(); } };
+$('nextBtn').onclick = () => {
+  if (currentIndex < currentTest.questions.length - 1){ currentIndex++; renderQuestion(); }
+  else { clearInterval(timerId); submitTest(); }
+};
+
+async function submitTest(){
+  try {
+    const result = await api(`/tests/${currentTest.testId}/submit`, { method: 'POST' });
+    await showResults(result);
+  } catch (err) {
+    alert('Could not submit test: ' + err.message);
+  }
+}
+
+// ---- Results ----
+async function showResults(result){
+  $('scoreNum').textContent = result.score;
+  $('scoreOf').textContent = `/ ${(result.totalQuestions*2)} marks`;
+  $('accuracyTxt').textContent = `${result.correctCount} of ${result.totalQuestions} attempted correctly · negative marking applied for wrong answers`;
+  $('statCorrect').textContent = result.correctCount;
+  $('statWrong').textContent = result.wrongCount;
+  $('statSkip').textContent = result.skippedCount;
+
+  const review = await api(`/tests/${result.testId}/review`);
+  const wrap = $('reviewWrap');
+  wrap.innerHTML = '';
+  const letters = ['A','B','C','D'];
+  review.items.forEach((item, i) => {
+    const opts = [item.option_a, item.option_b, item.option_c, item.option_d];
+    const given = item.selected_option;
+    const div = document.createElement('div');
+    div.className = 'r-item';
+    div.innerHTML = `
+      <div class="r-q">${i+1}. ${item.question_text}</div>
+      <div class="r-line ${given ? (given===item.correct_option ? 'correct' : 'you') : ''}">
+        Your answer: ${given ? given + '. ' + opts[letters.indexOf(given)] : 'Not attempted'}
+      </div>
+      ${given !== item.correct_option ? `<div class="r-line correct">Correct answer: ${item.correct_option}. ${opts[letters.indexOf(item.correct_option)]}</div>` : ''}
+      ${item.explanation ? `<div class="r-note">${item.explanation}</div>` : ''}
+    `;
+    wrap.appendChild(div);
+  });
+
+  show('view-results');
+}
+
+$('backHomeBtn').onclick = () => show('view-home');
+
+// ---- History ----
+async function loadHistory(){
+  try {
+    const data = await api('/tests/history');
+    const body = $('historyBody');
+    body.innerHTML = '';
+    if (data.tests.length === 0){
+      $('historyEmpty').classList.remove('hidden');
+    } else {
+      $('historyEmpty').classList.add('hidden');
+      data.tests.forEach(t => {
+        const tr = document.createElement('tr');
+        const date = new Date(t.started_at).toLocaleDateString();
+        tr.innerHTML = `<td>${date}</td><td>${t.subject_filter || 'Mixed'}</td>
+          <td>${t.status === 'submitted' ? t.score : '—'}</td>
+          <td>${t.correct_count ?? '—'}</td><td>${t.wrong_count ?? '—'}</td>`;
+        body.appendChild(tr);
+      });
+    }
+    show('view-history');
+  } catch (err) {
+    alert('Could not load history: ' + err.message);
+  }
+}
+
+// ---- Init ----
+renderNav();
+if (token){ show('view-home'); } else { showAuth('login'); }
+</script>
+</body>
+</html>
